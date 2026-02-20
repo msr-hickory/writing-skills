@@ -32,17 +32,23 @@ For each stakeholder, launch parallel research agents to analyze:
 - Analyze: tone, length, questioning patterns, priorities mentioned
 - Look for: recurring themes, pet peeves, approval language
 
-**B. Google Drive Documents**
+**B. Slack Communications**
+- Search Slack messages from the stakeholder across all relevant workspaces
+- Review channels they're most active in and DM patterns where visible
+- Analyze: tone (more candid than email?), responsiveness, emoji/reaction patterns, topics they engage on
+- Look for: informal priorities, real-time concerns, how they respond to proposals or announcements, who they interact with most
+
+**C. Google Drive Documents**
 - Search for documents authored by or mentioning the stakeholder
 - Analyze: writing style, focus areas, decision frameworks
 - Look for: strategic priorities, measurement preferences, risk tolerance
 
-**C. Meeting Patterns**
+**D. Meeting Patterns**
 - Review calendar invitations and meeting titles
 - Analyze: which meetings they prioritize, recurring cadences
 - Look for: operational vs. strategic focus, cross-functional involvement
 
-**D. Decision History** (if available)
+**E. Decision History** (if available)
 - Previous approvals/rejections on similar initiatives
 - Feedback patterns on past proposals
 - Changes they've requested historically
@@ -113,6 +119,7 @@ For each major element of your proposal:
 For each stakeholder, use Task tool with Explore agent:
 
 "Research [STAKEHOLDER NAME]'s communication patterns, priorities, and personality:
+- Search Slack messages from [NAME] across all relevant workspaces (elm, bell, stanleyruth) — note channels they're active in, tone, real-time concerns
 - Search GDrive for documents authored by or mentioning [NAME]
 - Search emails from/to/cc [EMAIL]
 - Analyze meeting patterns and calendar invitations
@@ -226,7 +233,7 @@ For each stakeholder, create a profile using this structure:
 1. **Use parallel agents** for efficiency (research all stakeholders simultaneously)
 2. **Look for patterns** not individual emails (volume > single instance)
 3. **Search recent activity** (last 3-6 months most relevant)
-4. **Cross-reference sources** (email + docs + meetings = complete picture)
+4. **Cross-reference sources** (Slack + email + docs + meetings = complete picture)
 
 ### Analysis Phase
 1. **Be specific** with predictions (not "they'll want data" but "they'll ask for 3-year ROI model")
@@ -288,7 +295,7 @@ Stakeholders:
 Document: [Link or path to the proposal/initiative]
 
 Please:
-1. Research each stakeholder's communication patterns in parallel
+1. Research each stakeholder's communication patterns in parallel (review Slack, email, Google Docs, and calendar for each)
 2. Build profiles for each person
 3. Predict their likely feedback on this initiative
 4. Create a meeting strategy document
