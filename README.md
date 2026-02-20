@@ -11,6 +11,7 @@ A collection of Claude Code skills that enforce consistent, high-quality writing
 | **[internal-training-comms](skills/internal-training-comms/SKILL.md)** | SOPs, training materials, onboarding docs, change communications. Adult learning principles, action mapping. | Audience is employees or field staff |
 | **[sales-copywriting](skills/sales-copywriting/SKILL.md)** | Direct mail, landing pages, email campaigns, proposals, ad copy. Direct response frameworks, VoC, awareness-level matching. | Customer-facing marketing content |
 | **[sop-creator](skills/sop-creator/SKILL.md)** | Runbooks, playbooks, checklists, decision trees, onboarding guides. Definition of Done, specificity rules. | Documenting any repeatable process |
+| **[spreadsheet-standards](skills/spreadsheet-standards/SKILL.md)** | IB/consulting-grade Google Sheets layout, formula discipline, formatting, MCP API constraints. | Building or writing to any Google Sheets deliverable |
 | **[stakeholder-feedback-analysis](skills/stakeholder-feedback-analysis/SKILL.md)** | Predict stakeholder reactions to proposals and initiatives. Communication pattern analysis, objection anticipation. | Preparing for board meetings or exec reviews |
 
 ## How They Layer
@@ -24,6 +25,7 @@ personal-writing          (voice, banned words, rhythm, anti-AI patterns)
     +-- internal-training-comms    (adult learning, action mapping, ADKAR)
     +-- sales-copywriting          (PAS/AIDA/BAB, VoC, awareness levels)
     +-- sop-creator                (Definition of Done, specificity rules)
+    +-- spreadsheet-standards           (FAST standard, formula discipline, MCP constraints)
     +-- stakeholder-feedback-analysis  (stakeholder profiling, objection prep)
 ```
 
@@ -52,6 +54,7 @@ These skills are designed to be forked and adapted. Common customizations:
 - **Terminology**: Update the `internal-training-comms` terminology table for your systems
 - **Trust signals**: Modify the `sales-copywriting` trust stack for your industry
 - **SOP templates**: Add domain-specific templates to `sop-creator`
+- **Spreadsheet conventions**: Adjust `spreadsheet-standards` formatting rules and API constraints for your platform
 - **Stakeholder profiles**: Pre-populate known stakeholder patterns in `stakeholder-feedback-analysis`
 
 ## Credits
@@ -61,4 +64,5 @@ These skills are designed to be forked and adapted. Common customizations:
 - `internal-training-comms` — Malcolm Knowles (adult learning), Cathy Moore (action mapping), Prosci ADKAR
 - `sales-copywriting` — Eugene Schwartz, Joanna Wiebe/CopyHackers, Robert Collier, Claude Hopkins
 - `sop-creator` — Adapted from [coleam00/second-brain-skills](https://github.com/coleam00/second-brain-skills)
+- `spreadsheet-standards` — FAST Standard, IB/consulting conventions, Google Sheets API constraints
 - `stakeholder-feedback-analysis` — Original skill for stakeholder communication analysis
