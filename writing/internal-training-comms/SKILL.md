@@ -1,6 +1,7 @@
 ---
 name: internal-training-comms
 description: Apply when writing any staff-facing content — SOPs, training materials, onboarding docs, process guides, internal announcements, change communications, scorecards/playbooks, or team-facing operational content. Enforces adult learning principles, action mapping, plain language, and change management communication patterns. Invoke explicitly with /internal-comms or auto-apply when the audience is Hickory employees, technicians, CSRs, or field staff.
+disable-model-invocation: true
 ---
 
 # Internal Training & Communications Skill

@@ -1,6 +1,7 @@
 ---
 name: sop-creator
 description: Use when creating runbooks, playbooks, SOPs, checklists, decision trees, onboarding guides, or any operational documentation that describes a repeatable process. Triggers on "create a runbook", "document this process", "write a playbook", "write an SOP", or any request to formalize a procedure.
+disable-model-invocation: true
 ---
 
 # SOP & Runbook Creator
