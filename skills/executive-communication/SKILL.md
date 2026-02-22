@@ -1,6 +1,7 @@
 ---
 name: executive-communication
 description: Apply when producing any deliverable for leadership, board, investors, or cross-functional stakeholders — decks, memos, updates, proposals, or decision documents. Enforces Pyramid Principle structure, SCQA framing, action titles, MECE logic, and consulting-grade formatting. Invoke explicitly with /exec-comm or auto-apply when the audience is director-level or above.
+disable-model-invocation: true
 ---
 
 # Executive Communication Skill

@@ -1,6 +1,7 @@
 ---
 name: sales-copywriting
 description: Apply when writing any customer-facing marketing or sales content — direct mail, landing pages, email campaigns, proposals, ad copy, service descriptions, membership pitches, or customer communications. Enforces direct response frameworks, Voice of Customer language, awareness-level matching, and HVAC/home services conversion patterns. Invoke explicitly with /sales-copy or auto-apply when the output is customer-facing marketing material.
+disable-model-invocation: true
 ---
 
 # Sales Copywriting Skill
