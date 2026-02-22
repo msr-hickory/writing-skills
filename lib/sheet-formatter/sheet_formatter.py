@@ -143,6 +143,95 @@ PROFILES = {
 
 
 # ============================================================================
+# SECTIONED TABLE LAYOUT HELPER
+# ============================================================================
+
+
+class SectionedTableLayout:
+    """Reusable row-layout helper for sectioned spreadsheet tables.
+
+    This helper is for report generators that *write values* (titles, section rows,
+    header rows, data rows) before applying visual formatting with ``SheetFormatter``.
+
+    It standardizes a common pattern:
+    - fixed-width sectioned tables
+    - rows padded to a consistent width
+    - a trailing spacer column (default: 1) for visual breathing room
+
+    Example:
+        >>> layout = SectionedTableLayout(content_columns=7)  # A:G + spacer H
+        >>> layout.visual_columns
+        8
+        >>> layout.section_row("REVENUE")
+        ['REVENUE', '', '', '', '', '', '', '']
+        >>> layout.pad_row(["", "A", "B", "TOTAL"])
+        ['', 'A', 'B', 'TOTAL', '', '', '', '']
+        >>> layout.max_col_letter()
+        'H'
+    """
+
+    def __init__(self, content_columns: int, *, trailing_spacer_columns: int = 1):
+        if content_columns < 1:
+            raise ValueError("content_columns must be >= 1")
+        if trailing_spacer_columns < 0:
+            raise ValueError("trailing_spacer_columns must be >= 0")
+
+        self.content_columns = content_columns
+        self.trailing_spacer_columns = trailing_spacer_columns
+
+    @property
+    def visual_columns(self) -> int:
+        """Total column count including trailing spacer columns."""
+        return self.content_columns + self.trailing_spacer_columns
+
+    def pad_row(self, values: list[Any]) -> list[Any]:
+        """Pad a row to the visual table width with blank cells.
+
+        Raises:
+            ValueError: If the row already exceeds the configured visual width.
+        """
+        row = list(values)
+        if len(row) > self.visual_columns:
+            raise ValueError(
+                f"Row has {len(row)} columns, exceeds visual width {self.visual_columns}"
+            )
+        return row + [""] * (self.visual_columns - len(row))
+
+    def pad_rows(self, rows: list[list[Any]]) -> list[list[Any]]:
+        """Pad multiple rows to the visual table width."""
+        return [self.pad_row(row) for row in rows]
+
+    def section_row(self, title: str) -> list[str]:
+        """Create a full-width section title row padded through spacer columns."""
+        return self.pad_row([title])
+
+    def blank_row(self) -> list[str]:
+        """Create a full-width blank row."""
+        return [""] * self.visual_columns
+
+    def max_col_letter(self) -> str:
+        """A1 column letter for the visual table width (including spacer columns)."""
+        return self.column_letter(self.visual_columns)
+
+    @staticmethod
+    def column_letter(col_num: int) -> str:
+        """Convert 1-based column number to A1 column letters.
+
+        Example:
+            1 -> A, 26 -> Z, 27 -> AA
+        """
+        if col_num < 1:
+            raise ValueError("col_num must be >= 1")
+
+        result = []
+        n = col_num
+        while n > 0:
+            n, rem = divmod(n - 1, 26)
+            result.append(chr(ord("A") + rem))
+        return "".join(reversed(result))
+
+
+# ============================================================================
 # MAIN SHEETFORMATTER CLASS
 # ============================================================================
 
@@ -571,6 +660,25 @@ class SheetFormatter:
         requests = []
         MAX_COL = 26  # A-Z
 
+        def _parse_col_range(col_spec: str) -> tuple[int, int]:
+            """Parse column range spec (A, B:D, B-D) into 0-based [start, end)."""
+            col_spec = col_spec.replace("-", ":")
+            parts = col_spec.split(":")
+            start = ord(parts[0].strip().upper()) - ord("A")
+            end = ord(parts[-1].strip().upper()) - ord("A") + 1
+            return start, end
+
+        def _infer_number_format_type(pattern: str) -> str:
+            """Best-effort Sheets numberFormat type inference from a pattern string."""
+            p = pattern.lower()
+            if "%" in pattern:
+                return "PERCENT"
+            if any(sym in pattern for sym in ("$", "€", "£", "¥")):
+                return "CURRENCY"
+            if any(tok in p for tok in ("yy", "mm", "dd")):
+                return "DATE_TIME" if any(tok in p for tok in ("hh", "ss", ":")) else "DATE"
+            return "NUMBER"
+
         # 1. Header rows (repeatCell)
         for hr in self._specs["header_rows"]:
             row = hr["row_num"] - 1  # 0-indexed
@@ -607,24 +715,79 @@ class SheetFormatter:
                     }
                 })
 
+        # 1b. Header row alignment overrides from column specs
+        # This keeps headers aligned with the data columns below (e.g., numeric cols right).
+        for hr in self._specs["header_rows"]:
+            row = hr["row_num"] - 1  # 0-indexed
+            for col_spec_key, spec in self._specs["columns"].items():
+                if not spec.get("align"):
+                    continue
+                start, end = _parse_col_range(col_spec_key)
+                requests.append({
+                    "repeatCell": {
+                        "range": {
+                            "sheetId": sheet_id,
+                            "startRowIndex": row, "endRowIndex": row + 1,
+                            "startColumnIndex": start, "endColumnIndex": end,
+                        },
+                        "cell": {"userEnteredFormat": {
+                            "horizontalAlignment": spec["align"]
+                        }},
+                        "fields": "userEnteredFormat.horizontalAlignment",
+                    }
+                })
+
         # 2. Column widths
         for col_spec_key, spec in self._specs["columns"].items():
+            start, end = _parse_col_range(col_spec_key)
+
             if spec.get("width") is None:
-                continue
-            # Parse "A", "B", "C:E", "B-H"
-            col_spec_key = col_spec_key.replace("-", ":")
-            parts = col_spec_key.split(":")
-            start = ord(parts[0].strip().upper()) - ord("A")
-            end = ord(parts[-1].strip().upper()) - ord("A") + 1
-            px = spec["width"] * 8  # char units → pixels
-            requests.append({
-                "updateDimensionProperties": {
-                    "range": {"sheetId": sheet_id, "dimension": "COLUMNS",
-                              "startIndex": start, "endIndex": end},
-                    "properties": {"pixelSize": px},
-                    "fields": "pixelSize",
+                pass
+            else:
+                px = spec["width"] * 8  # char units → pixels
+                requests.append({
+                    "updateDimensionProperties": {
+                        "range": {"sheetId": sheet_id, "dimension": "COLUMNS",
+                                  "startIndex": start, "endIndex": end},
+                        "properties": {"pixelSize": px},
+                        "fields": "pixelSize",
+                    }
+                })
+
+            # Apply column-level formatting (alignment, colors, number formats)
+            col_fmt = {}
+            fields = []
+            tf = {}
+
+            if spec.get("align"):
+                col_fmt["horizontalAlignment"] = spec["align"]
+                fields.append("userEnteredFormat.horizontalAlignment")
+            if spec.get("fg_color"):
+                tf["foregroundColor"] = spec["fg_color"]
+            if tf:
+                col_fmt["textFormat"] = tf
+                fields.append("userEnteredFormat.textFormat")
+            if spec.get("bg_color"):
+                col_fmt["backgroundColor"] = spec["bg_color"]
+                fields.append("userEnteredFormat.backgroundColor")
+            if spec.get("format"):
+                col_fmt["numberFormat"] = {
+                    "type": _infer_number_format_type(spec["format"]),
+                    "pattern": spec["format"],
                 }
-            })
+                fields.append("userEnteredFormat.numberFormat")
+
+            if col_fmt:
+                requests.append({
+                    "repeatCell": {
+                        "range": {
+                            "sheetId": sheet_id,
+                            "startColumnIndex": start, "endColumnIndex": end,
+                        },
+                        "cell": {"userEnteredFormat": col_fmt},
+                        "fields": ",".join(fields),
+                    }
+                })
 
         # 3. Freeze rows/columns
         if self._specs["freeze"]:
@@ -647,10 +810,7 @@ class SheetFormatter:
 
         # 4. Borders (updateBorders)
         for border_spec in self._specs.get("borders", []):
-            col_range = border_spec["col_range"].replace("-", ":")
-            parts = col_range.split(":")
-            start_col = ord(parts[0].strip().upper()) - ord("A")
-            end_col = ord(parts[-1].strip().upper()) - ord("A") + 1
+            start_col, end_col = _parse_col_range(border_spec["col_range"])
 
             # Build border objects for each position
             border_obj = {}
